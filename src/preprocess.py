@@ -1,14 +1,23 @@
 import pandas as pd
 
-# Load dataset
-df = pd.read_csv("data/air_quality.csv")
+def preprocess_raw_data(input_file="data/air_quality.csv", output_file="data/processed_data.csv"):
+    df = pd.read_csv(input_file)
 
-# Convert Date to datetime
-df["Date"] = pd.to_datetime(df["Date"], dayfirst=True)
+    # Keep only required columns
+    df = df[["Date","AQI","PM2.5","PM10","NO2","SO2","CO","O3"]]
 
-# Drop rows with missing values
-df = df.dropna()
+    # Handle missing values
+    df = df.fillna(0)
 
-# Save cleaned dataset
-df.to_csv("data/air_quality_clean.csv", index=False)
-print("✅ Cleaned dataset saved to data/air_quality_clean.csv")
+    # Ensure Date is datetime
+    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+
+    # Drop invalid rows
+    df = df.dropna(subset=["Date"])
+
+    df.to_csv(output_file, index=False)
+    print(f"✅ Processed dataset saved to {output_file}")
+    return df
+
+if __name__ == "__main__":
+    preprocess_raw_data()
